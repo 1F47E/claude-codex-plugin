@@ -32,7 +32,7 @@ never reports bugs; use the code review commands for that.
 Input is a code-review scope. "--" ends option parsing and takes the rest
 verbatim, so a scope beginning with a dash is still reviewable. Default model
 is astra; -m accepts astra and fable (comma-separated). Default reasoning effort
-is xhigh; override with -re/--effort or per model in ~/.rival/config.yaml.`
+is high; override with -re/--effort or per model in ~/.rival/config.yaml.`
 
 var defaultAntislopModels = []string{config.AstraLabel}
 

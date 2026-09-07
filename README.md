@@ -189,7 +189,7 @@ mode: code (or a plan) that *works* but shouldn't exist in that shape. Angles:
 reuse/DRY, simplification, efficiency, altitude (fixes at the wrong depth),
 backward-compat hoarding, library reinvention, and AI-slop signatures (comment
 slop, silent fallbacks, pass-through wrappers, speculative generality; scope
-speculative generality). Default model **astra**, default effort **xhigh**.
+speculative generality). Default model **astra**, default effort **high**.
 Report-only: it proposes, your session applies. Native form:
 `rival command antislop`, where `--` takes a scope verbatim.
 
@@ -364,8 +364,8 @@ appends an actionable hint (not logged in → run `claude` and `/login`).
 
 | Model | Default effort | Used by |
 |-------|----------------|---------|
-| Astra | xhigh (code review); xhigh pinned in plan skills, xhigh antislop fallback | `/rival-review`, `/rival-astra`, `/rival-plan`, `/rival-plan-astra`, `/rival-antislop` |
-| Fable | medium (code review); plan low fallback; xhigh antislop fallback | `/rival-fable`, `/rival-plan-fable`, antislop with `-m fable` |
+| Astra | xhigh (code review); xhigh pinned in plan skills, high antislop fallback | `/rival-review`, `/rival-astra`, `/rival-plan`, `/rival-plan-astra`, `/rival-antislop` |
+| Fable | medium (code review); plan low fallback; high antislop fallback | `/rival-fable`, `/rival-plan-fable`, antislop with `-m fable` |
 | Kimi K3 | max (only level the provider supports) | `/rival-k3`, `/rival-review` |
 | Grok | high (clamped ladder) | `/rival-grok`, reviews with `-m grok` |
 

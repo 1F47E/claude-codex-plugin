@@ -1,7 +1,7 @@
 ---
 name: rival-antislop
-version: 3.32.0
-description: Quality-only antislop review of changed code (or a given scope) via the rival binary — hunts slop and over-engineering, returns a leanness rating and a cut list, never bugs. Default model Astra at xhigh effort. Detached + watched in the background. Use only when the user explicitly invokes /rival-antislop.
+version: 3.32.1
+description: Quality-only antislop review of changed code (or a given scope) via the rival binary — hunts slop and over-engineering, returns a leanness rating and a cut list, never bugs. Default model Astra at high effort. Detached + watched in the background. Use only when the user explicitly invokes /rival-antislop.
 argument-hint: "[<scope>]"
 allowed-tools: Bash, Read, Write
 ---
@@ -29,7 +29,7 @@ For a plan/spec document instead, use `/rival-antislop-plan`.
 > - `/rival-antislop -m fable src/` — review with Fable instead of Astra
 > - `/rival-antislop -re high -m astra,fable src/` — pick effort and both models
 >
-> Default model is astra, default effort xhigh. To review a directory literally
+> Default model is astra, default effort high. To review a directory literally
 > named "plan", pass `./plan`.
 
 Empty `$ARGUMENTS` is valid input (auto-scope) — do NOT stop; proceed to

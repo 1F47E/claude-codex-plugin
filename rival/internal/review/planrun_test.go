@@ -424,7 +424,7 @@ type errString string
 
 func (e errString) Error() string { return string(e) }
 
-// Antislop calls runDocReview directly with its own prompt and an xhigh
+// Antislop calls runDocReview directly with its own prompt and a high
 // fallback effort (config override still wins); the target must land as the
 // session's review scope. An empty fallback keeps plan semantics — covered by
 // TestRunPlanReviewResolvesPerModelEfforts's lone-fable low case.
@@ -445,13 +445,13 @@ func TestRunDocReviewAppliesFallbackEffortAndTarget(t *testing.T) {
 		},
 	}
 
-	_, err := runDocReview(context.Background(), ex, "antislop", "ANTISLOP PROMPT", "src/api/", "", "xhigh", t.TempDir(), "doc", true, []string{"fable"})
+	_, err := runDocReview(context.Background(), ex, "antislop", "ANTISLOP PROMPT", "src/api/", "", config.DefaultAntislopEffort, t.TempDir(), "doc", true, []string{"fable"})
 	if err != nil {
 		t.Fatalf("runDocReview: %v", err)
 	}
 	got := <-observed
-	if got.effort != "xhigh" {
-		t.Errorf("single-fable effort = %q, want the xhigh fallback", got.effort)
+	if got.effort != "high" {
+		t.Errorf("single-fable effort = %q, want the high fallback", got.effort)
 	}
 	if got.scope != "src/api/" {
 		t.Errorf("session review scope = %q, want the antislop target", got.scope)
@@ -503,5 +503,35 @@ func TestRunPlanReviewStillRecordsPlanMode(t *testing.T) {
 	}
 	if got := <-observed; got != "plan" {
 		t.Errorf("session mode = %q, want plan", got)
+	}
+}
+
+func TestAntislopAstraEffortReachesRuntime(t *testing.T) {
+	for _, tt := range []struct{ name, config, override, want string }{
+		{"default", "", "", "high"},
+		{"configured", "efforts:\n  astra: medium\n", "", "medium"},
+		{"explicit", "efforts:\n  astra: medium\n", "xhigh", "xhigh"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			loadPlanTestConfig(t, tt.config)
+			observed := make(chan string, 1)
+			ex := planExecutor{
+				preflight: func(string) error { return nil },
+				run: func(_ context.Context, sess *session.Session, _, _, effort, _ string) (string, int, error) {
+					if sess.Effort != effort {
+						return "", 1, errString("session/runtime effort mismatch")
+					}
+					observed <- effort
+					return realPlanJSON, 0, nil
+				},
+			}
+			_, err := runDocReview(context.Background(), ex, session.ModeAntislop, "review", "src/", tt.override, config.DefaultAntislopEffort, t.TempDir(), "effort", true, []string{"astra"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := <-observed; got != tt.want {
+				t.Fatalf("runtime effort = %q, want %q", got, tt.want)
+			}
+		})
 	}
 }

@@ -139,7 +139,7 @@ func RunPlanReview(ctx context.Context, absPath, effort, workdir, groupID string
 // with a caller-built prompt. target is recorded as the sessions' review scope.
 // fallbackEffort is the surface's default when neither the invocation nor
 // ~/.rival/config.yaml names an effort; empty keeps the plan-review defaults
-// (DefaultPlanEffort, low for a lone Fable). Antislop passes "xhigh".
+// (DefaultPlanEffort, low for a lone Fable). Antislop resolves its own high default.
 // mode is the session mode and the queue ticket label ("plan" or "antislop").
 // Queue behavior does not depend on it: the concurrency limit is global.
 func RunDocReview(ctx context.Context, mode, prompt, target, effort, fallbackEffort, workdir, groupID string, noQueue bool, clis []string) (*PlanRunResult, error) {
@@ -195,7 +195,13 @@ func runDocReview(ctx context.Context, ex planExecutor, mode, prompt, target, ef
 				modelFallback = "low"
 			}
 		}
-		effectiveEffort, err := config.ResolveEffort(model, effort, modelFallback)
+		var effectiveEffort string
+		var err error
+		if mode == session.ModeAntislop {
+			effectiveEffort, err = config.ResolveAntislopEffort(model, effort)
+		} else {
+			effectiveEffort, err = config.ResolveEffort(model, effort, modelFallback)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("resolve %s plan effort: %w", config.EngineLabel(cli, model), err)
 		}

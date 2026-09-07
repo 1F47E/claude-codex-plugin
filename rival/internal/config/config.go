@@ -38,7 +38,7 @@ const (
 
 	DefaultReviewEffort        = "high"
 	DefaultPlanEffort          = "high"
-	DefaultAntislopEffort      = "xhigh"
+	DefaultAntislopEffort      = "high"
 	DefaultConfidenceThreshold = 6
 	SessionDir                 = ".rival/sessions"
 	QueueDir                   = ".rival/queue"
@@ -1056,7 +1056,7 @@ func titleLabel(label string) string {
 
 // pinnedModelEffort reports models whose effort is a property of the model
 // rather than of the surface invoking it. K3's provider exposes exactly one
-// level; Astra is the deep-reasoning tier and is meaningless below xhigh.
+// level; Astra defaults to xhigh for correctness and plan reviews.
 func pinnedModelEffort(label string) (string, bool) {
 	switch label {
 	case "kimi-k3":
@@ -1108,6 +1108,16 @@ func validConfiguredModelEffort(label, effort string) bool {
 // surface-specific fallback. Kimi K3 remains pinned to max because that
 // provider exposes no other reasoning level.
 func ResolveEffort(model, override, fallback string) (string, error) {
+	return resolveEffort(model, override, fallback, true)
+}
+
+// ResolveAntislopEffort uses the task's cheaper default instead of Astra's
+// correctness-review pin. Explicit overrides and configured efforts still win.
+func ResolveAntislopEffort(model, override string) (string, error) {
+	return resolveEffort(model, override, DefaultAntislopEffort, false)
+}
+
+func resolveEffort(model, override, fallback string, pinAstra bool) (string, error) {
 	label := ModelLabel(model)
 	override = strings.ToLower(strings.TrimSpace(override))
 	if override != "" {
@@ -1129,7 +1139,7 @@ func ResolveEffort(model, override, fallback string) (string, error) {
 	// Without this, every caller that passes a non-empty fallback (the
 	// megareview and plan paths both pass one) silently overrides the pin,
 	// which is how Astra ran at high instead of xhigh.
-	if pinned, ok := pinnedModelEffort(label); ok {
+	if pinned, ok := pinnedModelEffort(label); ok && (label != AstraLabel || pinAstra) {
 		return pinned, nil
 	}
 	if fallback == "" {

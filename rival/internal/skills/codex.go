@@ -40,7 +40,7 @@ func CodexSkill(name, version string) ([]byte, error) {
 	case "rival-antislop":
 		description = "Review code for over-engineering and unnecessary complexity through Rival, returning a leanness rating and cut list. Use for requested antislop reviews."
 		command = "antislop"
-		input = "Pass the scope and options verbatim. Empty input reviews git-detected changes. Default Astra, xhigh fallback; `-m fable` selects Fable. This reports quality and simplification findings, not ordinary bug findings."
+		input = "Pass the scope and options verbatim. Empty input reviews git-detected changes. Default Astra, high fallback; `-m fable` selects Fable. This reports quality and simplification findings, not ordinary bug findings."
 	case "rival-security":
 		description = "Run Rival's dedicated security reviewer on changed code or a specified scope from Codex. Use for requested vulnerability reviews."
 		command = "security"
