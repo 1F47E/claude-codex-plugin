@@ -1,15 +1,15 @@
 ---
 name: rival-review
-version: 3.31.0
-description: Run Sol, K3, and/or opt-in grok code reviews with a consilium judge via the rival binary. Use only when the user explicitly invokes /rival-review.
-argument-hint: "[-m sol|astra|k3|grok[,model...]] [-re high|ultra] [scope]"
+version: 3.32.0
+description: Run Astra, K3, and/or opt-in grok code reviews with a consilium judge via the rival binary. Use only when the user explicitly invokes /rival-review.
+argument-hint: "[-m astra|k3|grok[,model...]] [-re high|ultra] [scope]"
 allowed-tools: Bash, Read, Write
 ---
 
 # Megareview Runner (rival binary)
 
 Run the curated reviewers via the `rival` Go binary. The default roster is
-Sol alone; `-m/--model` replaces that roster for one invocation. K3 is
+Astra alone; `-m/--model` replaces that roster for one invocation. K3 is
 selectable but always runs the security lens, never a second bug hunt.
 Returns a single combined answer.
 
@@ -20,19 +20,18 @@ Returns a single combined answer.
 ### Usage
 
 Pass `$ARGUMENTS` through verbatim. Empty arguments are valid and review the
-git-detected scope with both default models. If `$ARGUMENTS` is `-h` or `--help`,
+git-detected scope with Astra. If `$ARGUMENTS` is `-h` or `--help`,
 respond with this usage message and STOP:
 
 > **Usage:**
-> - `/rival-review` — both default models; auto-detect changed files via git
-> - `/rival-review -m sol src/api/` — Sol only
-> - `/rival-review -m sol,astra src/api/` — Sol plus its deep-reasoning sibling
+> - `/rival-review` — Astra; auto-detect changed files via git
+> - `/rival-review -m astra src/api/` — Astra only
 > - `/rival-review -m k3 src/api/` — K3 only, security lens (requires `MOONSHOT_API_KEY`)
-> - `/rival-review -m sol,k3 src/api/` — Sol hunts bugs, K3 hunts vulnerabilities
+> - `/rival-review -m astra,k3 src/api/` — Astra hunts bugs, K3 hunts vulnerabilities
 > - `/rival-review -m grok src/api/` — grok only (opt-in; requires `grok login`)
 > - `/rival-review -re ultra src/api/` — override compatible model defaults
 >
-> **Models** (`-m`, `--model`): `sol`, `kimi-k3` (`k3`, requires `MOONSHOT_API_KEY`),
+> **Models** (`-m`, `--model`): `astra`, `kimi-k3` (`k3`, requires `MOONSHOT_API_KEY`),
 > `grok` (opt-in — never in the default roster; requires `grok login`)
 > **Reasoning effort** (`-re`, `--effort`): `low`, `medium`, `high`, `ultra`;
 > omitted uses per-model defaults from `~/.rival/config.yaml`.

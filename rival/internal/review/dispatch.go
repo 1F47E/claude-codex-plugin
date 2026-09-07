@@ -27,7 +27,7 @@ var grokReviewRun = executor.RunGrokModel
 func preflightFor(cli string) (func(model, workdir string) error, bool) {
 	switch cli {
 	case "codex":
-		return func(string, string) error { return executor.CodexPreflight() }, true
+		return func(model, _ string) error { return executor.CodexPreflightFor(model) }, true
 	case "opencode":
 		return executor.OpencodePreflightModel, true
 	case config.GrokLabel:
@@ -76,7 +76,11 @@ func grokReviewEffort(effort string) (string, error) {
 // the recorded value is the clamped one, so the session never advertises an
 // effort the provider was not actually sent.
 func reviewerEffortFor(cli, model, override string) (string, error) {
-	effort, err := config.ResolveEffort(model, override, config.DefaultReviewEffort)
+	fallback := config.DefaultReviewEffort
+	if model == config.AstraModel {
+		fallback = "xhigh"
+	}
+	effort, err := config.ResolveEffort(model, override, fallback)
 	if err != nil {
 		return "", err
 	}

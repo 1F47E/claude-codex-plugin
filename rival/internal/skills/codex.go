@@ -18,7 +18,7 @@ func CodexSkill(name, version string) ([]byte, error) {
 		description = "Review code with Fable 5.1 through Rival and the authenticated Claude Code CLI. Use for a requested Fable review or independent Claude review from Codex."
 		command = "fable"
 		input = "Always run a code review. No arguments means `review`. A scope means `review <scope>`. If the user already supplied `review`, do not duplicate it. Move an explicit effort before review: `-re high review src/`. Omitted effort uses the configured Fable default (medium fallback). For a plan document use $rival-plan-fable. Requires the Claude Code CLI authenticated with `claude auth login`, or Rival's configured Docker transport. Rival selects Fable 5.1; do not replace it with another model."
-	case "rival-sol", "rival-astra", "rival-k3", "rival-grok":
+	case "rival-astra", "rival-k3", "rival-grok":
 		model := strings.TrimPrefix(name, "rival-")
 		description = fmt.Sprintf("Run a requested %s prompt or code review through Rival from Codex.", model)
 		command = model
@@ -26,21 +26,21 @@ func CodexSkill(name, version string) ([]byte, error) {
 	case "rival-review":
 		description = "Run Rival's independent code review and consilium from Codex. Use for a requested Rival review; use rival-fable for a Fable-only review."
 		command = "megareview"
-		input = "Pass the user's scope and options verbatim. Empty input reviews git-detected changes. The default reviewer is Sol. `-m sol,k3` selects two reviewers; Grok is opt-in. Fable is not supported in this roster: use $rival-fable for Fable."
-	case "rival-plan", "rival-plan-sol", "rival-plan-fable":
+		input = "Pass the user's scope and options verbatim. Empty input reviews git-detected changes. The default reviewer is Astra. `-m astra,k3` selects two reviewers; Grok is opt-in. Fable is not supported in this roster: use $rival-fable for Fable."
+	case "rival-plan", "rival-plan-astra", "rival-plan-fable":
 		description = "Review a plan or specification document through Rival from Codex, returning ratings and findings."
-		command = "plan --model sol,fable --effort xhigh"
+		command = "plan --model astra --effort xhigh"
 		switch name {
-		case "rival-plan-sol":
-			command = "plan --model sol --effort xhigh"
+		case "rival-plan-astra":
+			command = "plan --model astra --effort xhigh"
 		case "rival-plan-fable":
 			command = "plan --model fable"
 		}
-		input = "Pass the document path and any requested options verbatim. If no document is specified, ask for its path before launching. Show all model results and report any skipped model. Paired and Sol plan reviews pin xhigh; Fable-only uses its configured effort (low fallback) unless the user supplies -re."
+		input = "Pass the document path and any requested options verbatim. If no document is specified, ask for its path before launching. Show all model results and report any skipped model. Astra plan reviews pin xhigh; Fable-only uses its configured effort (low fallback) unless the user supplies -re."
 	case "rival-antislop":
 		description = "Review code for over-engineering and unnecessary complexity through Rival, returning a leanness rating and cut list. Use for requested antislop reviews."
 		command = "antislop"
-		input = "Pass the scope and options verbatim. Empty input reviews git-detected changes. Default Sol, xhigh fallback; `-m fable` selects Fable. This reports quality and simplification findings, not ordinary bug findings."
+		input = "Pass the scope and options verbatim. Empty input reviews git-detected changes. Default Astra, xhigh fallback; `-m fable` selects Fable. This reports quality and simplification findings, not ordinary bug findings."
 	case "rival-security":
 		description = "Run Rival's dedicated security reviewer on changed code or a specified scope from Codex. Use for requested vulnerability reviews."
 		command = "security"

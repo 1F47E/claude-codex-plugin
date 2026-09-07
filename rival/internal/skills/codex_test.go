@@ -1,11 +1,43 @@
 package skills
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
 	"gopkg.in/yaml.v3"
 )
+
+func TestSolSkillsAreRetired(t *testing.T) {
+	for _, name := range []string{"rival-sol", "rival-plan-sol"} {
+		if slices.Contains(Names, name) || !slices.Contains(Deprecated, name) {
+			t.Fatalf("%s must be retired and cleaned on install", name)
+		}
+		if _, err := Files.ReadFile(name + "/SKILL.md"); err == nil {
+			t.Fatalf("retired skill %s remains embedded", name)
+		}
+		if _, err := CodexSkill(name, "test"); err == nil {
+			t.Fatalf("retired Codex skill %s remains available", name)
+		}
+	}
+	for _, name := range Names {
+		claude, err := Files.ReadFile(name + "/SKILL.md")
+		if err != nil {
+			t.Fatal(err)
+		}
+		codex, err := CodexSkill(name, "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, text := range []string{string(claude), string(codex)} {
+			for _, forbidden := range []string{"rival-sol", "rival-plan-sol", "Sol", "-m sol", "--model sol"} {
+				if strings.Contains(text, forbidden) {
+					t.Fatalf("%s still advertises %q", name, forbidden)
+				}
+			}
+		}
+	}
+}
 
 func TestEverySkillHasValidCodexVariant(t *testing.T) {
 	for _, name := range Names {

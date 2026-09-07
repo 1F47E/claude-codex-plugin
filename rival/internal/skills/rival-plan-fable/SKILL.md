@@ -1,6 +1,6 @@
 ---
 name: rival-plan-fable
-version: 3.31.0
+version: 3.32.0
 description: Review a plan/spec markdown document with Fable only via the rival binary. Rates it 1-10 and finds bugs and gaps. Use only when the user explicitly invokes /rival-plan-fable.
 argument-hint: "[-re low|high|ultra] <path-to-plan.md>"
 allowed-tools: Bash, Read, Write
@@ -14,7 +14,7 @@ configured `fable` default, with a built-in **low** fallback for this plan
 surface; the user can request **high** or **ultra**. The run is detached and
 watched in the background — this skill does not block your session.
 
-For a Sol review instead, use `/rival-plan-sol`.
+For a Astra review instead, use `/rival-plan-astra`.
 
 ## Instructions
 

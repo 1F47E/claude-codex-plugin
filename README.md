@@ -17,7 +17,7 @@ brew install 1F47E/tap/rival
 rival install          # Claude skills + Codex skills when Codex is detected
 ```
 
-Then set up at least one model. Sol is the usual first one:
+Then set up at least one model. Astra is the usual first one:
 
 ```bash
 npm install -g @openai/codex && codex login
@@ -35,7 +35,7 @@ $rival-fable -re high src/api/
 
 Install and authenticate the Claude Code CLI (`claude auth login`) for Fable.
 Codex launches Rival, waits with progress updates, and presents the result in
-the same turn. All eleven skills are available with `$rival-...` names.
+the same turn. All ten skills are available with `$rival-...` names.
 
 In Claude Code:
 
@@ -57,13 +57,12 @@ watcher; Codex keeps the turn active and waits for the result.
 
 | Skill | What it does | Why it's useful |
 |-------|--------------|-----------------|
-| `/rival-review` | Sol reviews your changes; add `-m k3` for a second reviewer that hunts vulnerabilities, and a consilium judge merges both | The default review gate. One independent model with full repo access, or two with different lenses |
+| `/rival-review` | Astra reviews your changes; add `-m k3` for a second reviewer that hunts vulnerabilities, and a consilium judge merges both | The default review gate. One independent model with full repo access, or two with different lenses |
 | `/rival-security` | Dedicated security review: injection, authorization and IDOR, crypto, SSRF, traversal, deserialization, secrets, CSRF, and more | Bug reviews barely touch security. This one hunts exploitable vulnerabilities and refuses to run rather than skip silently |
 | `/rival-antislop` | Quality-only review of changed code: over-engineering, reinvented libraries, compat hoarding, AI-slop patterns. Returns a leanness rating (1-10) and a cut list | Bug reviews can't tell you the code shouldn't exist. This one names what to delete, merge, or replace — the counterweight to AI-generated bloat |
-| `/rival-plan` | Sol + Fable independently rate a plan/spec 1-10 and list bugs, gaps, and ambiguities (xhigh effort) | Catches wrong steps and missing pieces in a design while they're still words, with two models' blind spots covering each other |
-| `/rival-plan-sol` / `/rival-plan-fable` | Single-model plan review | When you want one specific second opinion — Sol for independence from a Claude-based session, Fable when Sol is unavailable |
-| `/rival-sol` | Any prompt, or `review [scope]`, via Sol (OpenAI Codex CLI) | An independent non-Anthropic perspective with read-only repo access — ask it anything or point it at a diff |
-| `/rival-astra` | The same single-model run on Astra (`gpt-6-astra`), Sol's deep-reasoning sibling on the same runtime | Reach for it when Sol's pass feels shallow — it defaults to xhigh effort |
+| `/rival-plan` | Astra rates a plan 1-10 and lists findings at xhigh | Native structured plan review |
+| `/rival-plan-astra` / `/rival-plan-fable` | Single-model plan review | When you want one specific second opinion — Astra for independence from a Claude-based session, Fable when Astra is unavailable |
+| `/rival-astra` | Any prompt or `review [scope]` via Astra (`gpt-6-astra`), at xhigh by default | Independent code review through Codex CLI |
 | `/rival-fable` | Code review of changed files via Fable (Claude Code CLI) | A separate Claude reviewer whose exploration stays out of your session's context |
 | `/rival-k3` | Any prompt via Kimi K3 (max reasoning, OpenCode) | A cheap opinion from a thinking-only model on a different provider |
 | `/rival-grok` | Any prompt, or `review [scope]`, via Grok (xAI CLI); opt-in only | Never in the default roster; there when you explicitly want the fourth opinion |
@@ -99,7 +98,7 @@ To refresh only Codex, use `rival install --target codex --force`.
 You only need the runtimes for the models you use; an unavailable model is
 skipped, not fatal.
 
-- **Sol** — [Codex CLI](https://github.com/openai/codex):
+- **Astra** — [Codex CLI](https://github.com/openai/codex):
   `npm install -g @openai/codex && codex login` (browser ChatGPT login
   preferred; `codex login --with-api-key` for usage-based billing). Do not put
   the OpenAI key in the reviewed repository — Rival only needs the Codex login.
@@ -123,10 +122,10 @@ skipped, not fatal.
 ### Reviews
 
 ```
-/rival-review                              — Sol; auto-detect changed files
-/rival-review -m sol,k3 src/api/           — add the security lens
+/rival-review                              — Astra; auto-detect changed files
+/rival-review -m astra,k3 src/api/           — add the security lens
 /rival-review -re xhigh src/api/           — override effort
-/rival-sol review                          — single-model review
+/rival-astra review                          — single-model review
 /rival-fable                               — Fable review of changed files
 /rival-k3 review src/api/
 /rival-grok review src/api/                — opt-in
@@ -143,9 +142,9 @@ prompts retain their existing full-auto behavior.
 Scope auto-detection via git: dirty files first, else last commit, else the
 full project. The scope is a focus hint, not a restriction — reviewers have
 mechanical read-only access to the whole repo and follow imports as needed, so
-natural-language scopes work: `/rival-sol review the authentication middleware`.
+natural-language scopes work: `/rival-astra review the authentication middleware`.
 
-Raw prompts (`/rival-sol explain the auth flow`) run full-auto in the workdir;
+Raw prompts (`/rival-astra explain the auth flow`) run full-auto in the workdir;
 rival strips known credential env vars from the child as blast-radius
 reduction. Grok's `review` additionally passes `--sandbox read-only`, but its
 built-in profiles fail open without a kernel sandbox and keep temp dirs
@@ -172,7 +171,7 @@ fails if the chosen model has no key rather than falling back, because a
 security review that quietly skips is worse than one that refuses to start.
 Output that does not parse is reported as unusable, never as a clean review.
 
-`-m k3` in a megareview carries the same security lens, so `-m sol,k3` gives
+`-m k3` in a megareview carries the same security lens, so `-m astra,k3` gives
 you one reviewer hunting bugs and one hunting vulnerabilities. The judge is
 told which reviewer used which lens, so a finding only the security reviewer
 could have made is not discounted for lacking a second vote.
@@ -182,7 +181,7 @@ could have made is not discounted for lacking a second vote.
 ```
 /rival-antislop                             — cut list for the changed files (auto-detect)
 /rival-antislop src/api/                    — cut list for a specific scope
-/rival-antislop -m fable src/               — with Fable instead of Sol
+/rival-antislop -m fable src/               — with Fable instead of Astra
 ```
 
 Every other rival command hunts bugs. Antislop hunts the opposite failure
@@ -190,25 +189,25 @@ mode: code (or a plan) that *works* but shouldn't exist in that shape. Angles:
 reuse/DRY, simplification, efficiency, altitude (fixes at the wrong depth),
 backward-compat hoarding, library reinvention, and AI-slop signatures (comment
 slop, silent fallbacks, pass-through wrappers, speculative generality; scope
-speculative generality). Default model **sol**, default effort **xhigh**.
+speculative generality). Default model **astra**, default effort **xhigh**.
 Report-only: it proposes, your session applies. Native form:
 `rival command antislop`, where `--` takes a scope verbatim.
 
 ### Plan review
 
 ```
-/rival-plan path/to/plan.md                 — Sol + Fable at xhigh
-/rival-plan-sol path/to/plan.md             — Sol only, xhigh
+/rival-plan path/to/plan.md                 — Astra at xhigh
+/rival-plan-astra path/to/plan.md             — Astra only, xhigh
 /rival-plan-fable path/to/plan.md           — Fable only (configured effort, low fallback)
 ```
 
 Each model rates the plan 1-10 and returns numbered findings (bugs, gaps,
 ambiguity, scope, verification). Native:
-`rival command plan --model sol --effort xhigh`.
+`rival command plan --model astra --effort xhigh`.
 
 ### Model selection & effort
 
-`-m/--model`: `sol`, `k3`, `grok` for code reviews; `sol`, `fable` for plan
+`-m/--model`: `astra`, `k3`, `grok` for code reviews; `astra`, `fable` for plan
 and antislop commands. An explicit list replaces the roster — naming `grok` is
 the only way it joins a review. `-re/--effort`: `low`/`medium`/`high`/`xhigh`.
 
@@ -216,7 +215,7 @@ Per-model defaults live in `~/.rival/config.yaml`:
 
 ```yaml
 efforts:
-  sol: high
+  astra: xhigh
   kimi-k3: max
   fable: medium
   grok: high
@@ -247,21 +246,21 @@ Summary: ...
 [CRITICAL] file.go:42 — Title
   Description...
   Fix: ...
-  Found by: sol, kimi-k3
+  Found by: astra, kimi-k3
 
 Recommendation: request_changes — ...
 
-Reviewed by: sol (bug_hunter), kimi-k3 (bug_hunter)
-Judge: sol (consilium)
+Reviewed by: astra (bug_hunter), kimi-k3 (bug_hunter)
+Judge: astra (consilium)
 Findings: 5 (threshold: 6)
 ```
 
 ### Terminal CLI
 
 ```bash
-echo 'explain the auth flow' | rival run sol --prompt-stdin --workdir .
+echo 'explain the auth flow' | rival run astra --prompt-stdin --workdir .
 rival review src/api/                        # default two-model roster
-rival review --model sol src/api/
+rival review --model astra src/api/
 echo 'docs/plan.md' | rival command plan --workdir .
 echo 'the entire project' | rival command antislop --workdir .
 ```
@@ -365,8 +364,8 @@ appends an actionable hint (not logged in → run `claude` and `/login`).
 
 | Model | Default effort | Used by |
 |-------|----------------|---------|
-| Sol | high (code review); xhigh pinned in plan skills, xhigh antislop fallback | `/rival-review`, `/rival-sol`, `/rival-plan`, `/rival-plan-sol`, `/rival-antislop` |
-| Fable | medium (code review); plan low fallback; xhigh antislop fallback | `/rival-fable`, `/rival-plan`, `/rival-plan-fable`, antislop with `-m fable` |
+| Astra | xhigh (code review); xhigh pinned in plan skills, xhigh antislop fallback | `/rival-review`, `/rival-astra`, `/rival-plan`, `/rival-plan-astra`, `/rival-antislop` |
+| Fable | medium (code review); plan low fallback; xhigh antislop fallback | `/rival-fable`, `/rival-plan-fable`, antislop with `-m fable` |
 | Kimi K3 | max (only level the provider supports) | `/rival-k3`, `/rival-review` |
 | Grok | high (clamped ladder) | `/rival-grok`, reviews with `-m grok` |
 

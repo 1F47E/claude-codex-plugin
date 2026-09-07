@@ -150,7 +150,7 @@ func TestClaudeAuth(t *testing.T) {
 
 // The default roster dropped K3 on 2026-08-14. K3 stays selectable with
 // -m k3, but it no longer bug-hunts alongside Sol by default.
-func TestResolveReviewTargets_DefaultIsSolAlone(t *testing.T) {
+func TestResolveReviewTargets_DefaultIsAstraAlone(t *testing.T) {
 	got, err := ResolveReviewTargets(nil)
 	if err != nil {
 		t.Fatal(err)
@@ -158,11 +158,11 @@ func TestResolveReviewTargets_DefaultIsSolAlone(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("default target count = %d, want 1: %+v", len(got), got)
 	}
-	if got[0].CLI != "codex" || got[0].Model != GPT56SolModel {
-		t.Fatalf("default target = %+v, want %s", got[0], GPT56SolModel)
+	if got[0].CLI != "codex" || got[0].Model != AstraModel {
+		t.Fatalf("default target = %+v, want %s", got[0], AstraModel)
 	}
 	if got[0].Prompt != PromptBugHunter {
-		t.Errorf("Sol runs the %s lens by default, want bug hunting", got[0].Prompt)
+		t.Errorf("Astra runs the %s lens by default, want bug hunting", got[0].Prompt)
 	}
 }
 

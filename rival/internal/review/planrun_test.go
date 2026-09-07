@@ -14,6 +14,40 @@ import (
 // realPlanJSON is a minimal valid plan payload ParsePlanOutput accepts.
 const realPlanJSON = `{"summary":"ok plan","rating":7,"findings":[]}`
 
+func TestAstraPlanUsesAstraRuntimeAndStructuredOutput(t *testing.T) {
+	loadPlanTestConfig(t, "")
+	bin, repo := t.TempDir(), t.TempDir()
+	t.Setenv("PATH", bin)
+	argsFile := filepath.Join(repo, "args.txt")
+	t.Setenv("RIVAL_TEST_ARGS", argsFile)
+	script := "#!/bin/sh\nif [ \"$1\" = login ]; then exit 0; fi\nprintf '%s\\n' \"$@\" > \"$RIVAL_TEST_ARGS\"\nprintf '%s\\n' '" + realPlanJSON + "'\n"
+	if err := os.WriteFile(filepath.Join(bin, "codex"), []byte(script), 0700); err != nil {
+		t.Fatal(err)
+	}
+	result, err := RunPlanReview(context.Background(), filepath.Join(repo, "plan.md"), "", repo, "astra-proof", true, []string{"astra"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Results) != 1 || result.Results[0].Model != config.AstraModel || result.Results[0].Parsed == nil || result.Results[0].Parsed.Rating != 7 {
+		t.Fatalf("wrong Astra result: %+v", result)
+	}
+	args, err := os.ReadFile(argsFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"-m\n" + config.AstraModel, "model_reasoning_effort=xhigh", "--sandbox\nread-only"} {
+		if !strings.Contains(string(args), want) {
+			t.Fatalf("runtime arguments missing %q: %s", want, args)
+		}
+	}
+	if strings.Contains(string(args), config.GPT56SolModel) {
+		t.Fatal("Astra plan ran Sol")
+	}
+	if !strings.Contains(FormatPlanResult(result, "plan.md"), "7/10") {
+		t.Fatal("plan result lost structured rating")
+	}
+}
+
 func TestAssemblePlanResults_AllFailed(t *testing.T) {
 	batch := []planCLIRun{
 		{CLI: "codex", ExitCode: 1},
@@ -251,6 +285,17 @@ func TestRunPlanReviewResolvesPerModelEfforts(t *testing.T) {
 		clis       []string
 		want       map[string]string
 	}{
+		{
+			name: "astra native fallback",
+			clis: []string{"astra"},
+			want: map[string]string{"astra": "xhigh"},
+		},
+		{
+			name:       "astra configured effort",
+			configYAML: "efforts:\n  astra: low\n",
+			clis:       []string{"astra"},
+			want:       map[string]string{"astra": "low"},
+		},
 		{
 			name: "sol uses native fallback",
 			clis: []string{"codex"},

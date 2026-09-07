@@ -24,7 +24,7 @@ func TestCommandPlanDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Join(models, ",") != config.SolLabel+","+config.FableLabel {
+	if strings.Join(models, ",") != config.AstraLabel {
 		t.Fatalf("default plan models = %v, want public model roster", models)
 	}
 }
@@ -115,6 +115,9 @@ func TestParsePlanModels(t *testing.T) {
 	}{
 		{"exact models", []string{"gpt-5.6-sol", "claude-fable-5-1"}, []string{"codex", "fable"}, false},
 		{"friendly aliases", []string{"sol", "fable"}, []string{"codex", "fable"}, false},
+		{"astra alias", []string{"astra"}, []string{"astra"}, false},
+		{"astra exact id deduplicated", []string{"astra", "gpt-6-astra"}, []string{"astra"}, false},
+		{"same runtime distinct models", []string{"astra,sol,fable"}, []string{"astra", "codex", "fable"}, false},
 		{"comma separated", []string{"sol,fable"}, []string{"codex", "fable"}, false},
 		{"dedup preserves order", []string{"fable", "sol", "gpt-5.6-sol"}, []string{"fable", "codex"}, false},
 		{"trims and lowercases", []string{" GPT-5.6-SOL ", "FABLE"}, []string{"codex", "fable"}, false},

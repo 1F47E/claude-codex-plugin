@@ -1,14 +1,14 @@
 ---
-name: rival-plan-sol
-version: 3.31.0
-description: Review a plan/spec markdown document with Sol at xhigh effort via the rival binary. Rates it 1-10 and finds bugs and gaps. Use only when the user explicitly invokes /rival-plan-sol.
+name: rival-plan-astra
+version: 3.32.0
+description: Review a plan/spec markdown document with Astra at xhigh effort via the rival binary. Rates it 1-10 and finds bugs and gaps. Use only when the user explicitly invokes /rival-plan-astra.
 argument-hint: "<path-to-plan.md>"
 allowed-tools: Bash, Read, Write
 ---
 
-# Plan reviewer — Sol
+# Plan reviewer — Astra
 
-Review one plan/spec markdown file with Sol. The model rates the plan
+Review one plan/spec markdown file with Astra. The model rates the plan
 1-10 and returns numbered findings (crit/high/med/low). Always run at **xhigh**
 reasoning effort. The run is detached and watched in the background, so this
 skill does not block the session.
@@ -24,8 +24,8 @@ For a Fable review instead, use `/rival-plan-fable`.
 If `$ARGUMENTS` is empty or blank, respond with this usage message and STOP:
 
 > **Usage:**
-> - `/rival-plan-sol path/to/plan.md` — review a plan/spec with Sol at xhigh effort
-> - `/rival-plan-sol` — show this usage info
+> - `/rival-plan-astra path/to/plan.md` — review a plan/spec with Astra at xhigh effort
+> - `/rival-plan-astra` — show this usage info
 >
 > Input is a single path to a markdown plan/spec file. The skill always uses
 > `xhigh` reasoning effort.
@@ -43,7 +43,7 @@ the result then, possibly several turns later.
 ```bash
 RIVAL_IN="/tmp/rival_in_<8-random-hex>.txt"   # the file you created with the Write tool
 RIVAL_OUT="$(mktemp -t rival_out.XXXXXX)"; RIVAL_ERR="$(mktemp -t rival_err.XXXXXX)"
-rival command plan --model sol --effort xhigh --detach --workdir "$(pwd)" <"$RIVAL_IN" >"$RIVAL_OUT" 2>"$RIVAL_ERR"
+rival command plan --model astra --effort xhigh --detach --workdir "$(pwd)" <"$RIVAL_IN" >"$RIVAL_OUT" 2>"$RIVAL_ERR"
 rm -f "$RIVAL_IN"
 echo "rival_out=$RIVAL_OUT rival_err=$RIVAL_ERR"
 RIVAL_PID="$(sed -n 's/^rival: detached pid=\([0-9]*\)$/\1/p' "$RIVAL_ERR" | head -1)"

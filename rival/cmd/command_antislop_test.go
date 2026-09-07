@@ -36,13 +36,13 @@ func TestAntislopStdinGrammar(t *testing.T) {
 	}
 }
 
-func TestAntislopDefaultModelIsSolOnly(t *testing.T) {
+func TestAntislopDefaultModelIsAstraOnly(t *testing.T) {
 	clis, err := parsePlanModels(defaultAntislopModels)
 	if err != nil {
 		t.Fatalf("parsePlanModels: %v", err)
 	}
-	if len(clis) != 1 || clis[0] != "codex" {
-		t.Fatalf("got %v, want sol only (codex adapter)", clis)
+	if len(clis) != 1 || clis[0] != "astra" {
+		t.Fatalf("got %v, want astra only", clis)
 	}
 }
 

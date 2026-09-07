@@ -148,16 +148,17 @@ func PublicRuntimeError(cli, model, message string) string {
 	message = replaceConcreteModelIDs(cli, model, message)
 	label := EngineLabel(cli, model)
 	switch cli {
-	case "codex":
+	case "codex", "astra":
+		title := titleLabel(label)
 		return strings.NewReplacer(
-			"OpenAI Codex", "Sol runtime",
-			"Codex CLI", "Sol runtime",
-			"codex CLI", "Sol runtime",
-			"run codex login", "authenticate the Sol runtime",
-			"codex exited", "sol exited",
-			"start codex:", "start Sol runtime:",
-			"subprocess codex:", "Sol runtime:",
-			"Codex", "Sol",
+			"OpenAI Codex", title+" runtime",
+			"Codex CLI", title+" runtime",
+			"codex CLI", title+" runtime",
+			"run codex login", "authenticate the "+title+" runtime",
+			"codex exited", label+" exited",
+			"start codex:", "start "+title+" runtime:",
+			"subprocess codex:", title+" runtime:",
+			"Codex", title,
 		).Replace(message)
 	case "claude", "fable":
 		title := strings.ToUpper(label[:1]) + label[1:]
@@ -205,7 +206,7 @@ func PublicRuntimeLog(cli, model, raw string) string {
 		leading := body[:len(body)-len(strings.TrimLeft(body, " \t"))]
 
 		switch cli {
-		case "codex":
+		case "codex", "astra":
 			if strings.HasPrefix(trimmed, "OpenAI Codex") {
 				// Sol and Astra share this runtime, so the banner takes the
 				// resolved label rather than a hardcoded "Sol". Title-cased to
@@ -390,7 +391,7 @@ func DefaultReviewTargets() []ReviewTarget {
 	// K3 left the default roster on 2026-08-14. It stays selectable with
 	// -m k3, where it always carries the security lens.
 	return []ReviewTarget{
-		{CLI: "codex", Model: GPT56SolModel},
+		{CLI: "codex", Model: AstraModel},
 	}
 }
 

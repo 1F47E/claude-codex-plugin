@@ -31,10 +31,10 @@ never reports bugs; use the code review commands for that.
 
 Input is a code-review scope. "--" ends option parsing and takes the rest
 verbatim, so a scope beginning with a dash is still reviewable. Default model
-is sol; -m accepts sol and fable (comma-separated). Default reasoning effort
+is astra; -m accepts astra and fable (comma-separated). Default reasoning effort
 is xhigh; override with -re/--effort or per model in ~/.rival/config.yaml.`
 
-var defaultAntislopModels = []string{config.SolLabel}
+var defaultAntislopModels = []string{config.AstraLabel}
 
 var commandAntislopCmd = &cobra.Command{
 	Use:   "antislop",
@@ -45,7 +45,7 @@ var commandAntislopCmd = &cobra.Command{
 func init() {
 	commandAntislopCmd.Flags().String("workdir", ".", "working directory")
 	commandAntislopCmd.Flags().Bool("no-queue", false, "bypass the review queue")
-	commandAntislopCmd.Flags().StringSliceP("model", "m", defaultAntislopModels, "antislop model(s): sol, fable (comma-separated)")
+	commandAntislopCmd.Flags().StringSliceP("model", "m", defaultAntislopModels, "antislop model(s): astra, fable (comma-separated)")
 	commandAntislopCmd.Flags().String("effort", "", "override reasoning effort for every selected model: low, medium, high, ultra")
 	commandCmd.AddCommand(commandAntislopCmd)
 }

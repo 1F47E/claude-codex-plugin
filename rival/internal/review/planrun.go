@@ -79,8 +79,8 @@ func defaultPlanExecutor() planExecutor {
 	return planExecutor{
 		preflight: func(cli string) error {
 			switch cli {
-			case "codex":
-				return executor.CodexPreflight()
+			case "codex", "astra":
+				return executor.CodexPreflightFor(planModelForCLI(cli))
 			case "fable":
 				return executor.ClaudePreflight()
 			default:
@@ -91,8 +91,8 @@ func defaultPlanExecutor() planExecutor {
 			var result *executor.Result
 			var err error
 			switch cli {
-			case "codex":
-				result, err = executor.RunCodexModel(ctx, sess, prompt, effort, workdir, config.GPT56SolModel, nil)
+			case "codex", "astra":
+				result, err = executor.RunCodexModel(ctx, sess, prompt, effort, workdir, planModelForCLI(cli), nil)
 			case "fable":
 				result, err = executor.RunFable(ctx, sess, prompt, effort, workdir, nil)
 			default:
@@ -115,6 +115,8 @@ func planModelForCLI(cli string) string {
 	switch cli {
 	case "codex":
 		return config.GPT56SolModel
+	case "astra":
+		return config.AstraModel
 	case "fable":
 		return config.FableModel
 	default:
@@ -186,6 +188,9 @@ func runDocReview(ctx context.Context, ex planExecutor, mode, prompt, target, ef
 		modelFallback := fallbackEffort
 		if modelFallback == "" {
 			modelFallback = config.DefaultPlanEffort
+			if cli == "astra" {
+				modelFallback = "xhigh"
+			}
 			if len(clis) == 1 && cli == "fable" {
 				modelFallback = "low"
 			}
